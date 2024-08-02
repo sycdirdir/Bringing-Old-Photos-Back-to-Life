@@ -9,6 +9,7 @@ import torch
 import models
 import data
 import pickle
+import fickling
 
 
 class BaseOptions:
@@ -254,7 +255,7 @@ class BaseOptions:
 
     def load_options(self, opt):
         file_name = self.option_file_path(opt, makedir=False)
-        new_opt = pickle.load(open(file_name + ".pkl", "rb"))
+        new_opt = fickling.load(open(file_name + ".pkl", "rb"))
         return new_opt
 
     def parse(self, save=False):
