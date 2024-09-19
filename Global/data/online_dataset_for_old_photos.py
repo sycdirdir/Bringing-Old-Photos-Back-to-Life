@@ -10,9 +10,9 @@ from PIL import Image
 import torchvision.transforms as transforms
 import numpy as np
 from data.Load_Bigfile import BigFileMemoryLoader
-import random
 import cv2
 from io import BytesIO
+import secrets
 
 def pil_to_np(img_PIL):
     '''Converts image in PIL format to np.array.
@@ -71,7 +71,7 @@ def synthesize_gaussian(image,std_l,std_r):
     img_pil=pil_to_np(image)
 
     mean=0
-    std=random.uniform(std_l/255.,std_r/255.)
+    std=secrets.SystemRandom().uniform(std_l/255.,std_r/255.)
     gauss=np.random.normal(loc=mean,scale=std,size=img_pil.shape)
     noisy=img_pil+gauss
     noisy=np.clip(noisy,0,1).astype(np.float32)
@@ -85,7 +85,7 @@ def synthesize_speckle(image,std_l,std_r):
     img_pil=pil_to_np(image)
 
     mean=0
-    std=random.uniform(std_l/255.,std_r/255.)
+    std=secrets.SystemRandom().uniform(std_l/255.,std_r/255.)
     gauss=np.random.normal(loc=mean,scale=std,size=img_pil.shape)
     noisy=img_pil+gauss*img_pil
     noisy=np.clip(noisy,0,1).astype(np.float32)
@@ -96,12 +96,12 @@ def synthesize_speckle(image,std_l,std_r):
 def synthesize_low_resolution(img):
     w,h=img.size
 
-    new_w=random.randint(int(w/2),w)
-    new_h=random.randint(int(h/2),h)
+    new_w=secrets.SystemRandom().randint(int(w/2),w)
+    new_h=secrets.SystemRandom().randint(int(h/2),h)
 
     img=img.resize((new_w,new_h),Image.BICUBIC)
 
-    if random.uniform(0,1)<0.5:
+    if secrets.SystemRandom().uniform(0,1)<0.5:
         img=img.resize((w,h),Image.NEAREST)
     else:
         img = img.resize((w, h), Image.BILINEAR)
@@ -121,8 +121,8 @@ def blur_image_v2(img):
 
     x=np.array(img)
     kernel_size_candidate=[(3,3),(5,5),(7,7)]
-    kernel_size=random.sample(kernel_size_candidate,1)[0]
-    std=random.uniform(1.,5.)
+    kernel_size=secrets.SystemRandom().sample(kernel_size_candidate,1)[0]
+    std=secrets.SystemRandom().uniform(1.,5.)
 
     #print("The gaussian kernel size: (%d,%d) std: %.2f"%(kernel_size[0],kernel_size[1],std))
     blur=cv2.GaussianBlur(x,kernel_size,std)
@@ -134,21 +134,21 @@ def online_add_degradation_v2(img):
     task_id=np.random.permutation(4)
 
     for x in task_id:
-        if x==0 and random.uniform(0,1)<0.7:
+        if x==0 and secrets.SystemRandom().uniform(0,1)<0.7:
             img = blur_image_v2(img)
-        if x==1 and random.uniform(0,1)<0.7:
-            flag = random.choice([1, 2, 3])
+        if x==1 and secrets.SystemRandom().uniform(0,1)<0.7:
+            flag = secrets.choice([1, 2, 3])
             if flag == 1:
                 img = synthesize_gaussian(img, 5, 50)
             if flag == 2:
                 img = synthesize_speckle(img, 5, 50)
             if flag == 3:
-                img = synthesize_salt_pepper(img, random.uniform(0, 0.01), random.uniform(0.3, 0.8))
-        if x==2 and random.uniform(0,1)<0.7:
+                img = synthesize_salt_pepper(img, secrets.SystemRandom().uniform(0, 0.01), secrets.SystemRandom().uniform(0.3, 0.8))
+        if x==2 and secrets.SystemRandom().uniform(0,1)<0.7:
             img=synthesize_low_resolution(img)
 
-        if x==3 and random.uniform(0,1)<0.7:
-            img=convertToJpeg(img,random.randint(40,100))
+        if x==3 and secrets.SystemRandom().uniform(0,1)<0.7:
+            img=convertToJpeg(img,secrets.SystemRandom().randint(40,100))
 
     return img
 
@@ -218,9 +218,9 @@ class UnPairOldPhotos_SR(BaseDataset):  ## Synthetic + Real Old
         sampled_dataset=None
         degradation=None
         if self.isImage: ## domain A , contains 2 kinds of data: synthetic + real_old
-            P=random.uniform(0,2)
+            P=secrets.SystemRandom().uniform(0,2)
             if P>=0 and P<1:
-                if random.uniform(0,1)<0.5:
+                if secrets.SystemRandom().uniform(0,1)<0.5:
                     sampled_dataset=self.loaded_imgs_L_old
                     self.load_img_dir=self.load_img_dir_L_old
                 else:
@@ -238,7 +238,7 @@ class UnPairOldPhotos_SR(BaseDataset):  ## Synthetic + Real Old
 
         sampled_dataset_len=len(sampled_dataset)
 
-        index=random.randint(0,sampled_dataset_len-1)
+        index=secrets.SystemRandom().randint(0,sampled_dataset_len-1)
 
         img_name,img = sampled_dataset[index]
 
@@ -252,7 +252,7 @@ class UnPairOldPhotos_SR(BaseDataset):  ## Synthetic + Real Old
 
         # apply the same transform to both A and B
 
-        if random.uniform(0,1) <0.1:
+        if secrets.SystemRandom().uniform(0,1) <0.1:
             img=img.convert("L")
             img=img.convert("RGB")
             ## Give a probability P, we convert the RGB image into L
@@ -334,7 +334,7 @@ class PairOldPhotos(BaseDataset):
                 path = os.path.join(self.load_img_dir, img_name_A)
 
 
-        if random.uniform(0,1)<0.1 and self.opt.isTrain:
+        if secrets.SystemRandom().uniform(0,1)<0.1 and self.opt.isTrain:
             A=A.convert("L")
             B=B.convert("L")
             A=A.convert("RGB")
@@ -430,7 +430,7 @@ class PairOldPhotos_with_hole(BaseDataset):
             A=transforms.CenterCrop(256)(A)
             B=A
 
-        if random.uniform(0,1)<0.1 and self.opt.isTrain:
+        if secrets.SystemRandom().uniform(0,1)<0.1 and self.opt.isTrain:
             A=A.convert("L")
             B=B.convert("L")
             A=A.convert("RGB")
@@ -438,12 +438,12 @@ class PairOldPhotos_with_hole(BaseDataset):
         ## In P, we convert the RGB into L
 
         if self.opt.isTrain:
-            mask_name,mask=self.loaded_masks[random.randint(0,len(self.loaded_masks)-1)]
+            mask_name,mask=self.loaded_masks[secrets.SystemRandom().randint(0,len(self.loaded_masks)-1)]
         else:
             mask_name, mask = self.loaded_masks[index%100]
         mask = mask.resize((self.opt.loadSize, self.opt.loadSize), Image.NEAREST)
 
-        if self.opt.random_hole and random.uniform(0,1)>0.5 and self.opt.isTrain:
+        if self.opt.random_hole and secrets.SystemRandom().uniform(0,1)>0.5 and self.opt.isTrain:
             mask=zero_mask(256)
 
         if self.opt.no_hole:
