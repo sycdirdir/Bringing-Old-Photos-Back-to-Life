@@ -5,7 +5,7 @@ import torch.utils.data as data
 from PIL import Image
 import torchvision.transforms as transforms
 import numpy as np
-import random
+import secrets
 
 
 class BaseDataset(data.Dataset):
@@ -35,10 +35,10 @@ def get_params(opt, size):
         ls = int(opt.load_size * ls / ss)
         new_w, new_h = (ss, ls) if width_is_shorter else (ls, ss)
 
-    x = random.randint(0, np.maximum(0, new_w - opt.crop_size))
-    y = random.randint(0, np.maximum(0, new_h - opt.crop_size))
+    x = secrets.SystemRandom().randint(0, np.maximum(0, new_w - opt.crop_size))
+    y = secrets.SystemRandom().randint(0, np.maximum(0, new_h - opt.crop_size))
 
-    flip = random.random() > 0.5
+    flip = secrets.SystemRandom().random() > 0.5
     return {"crop_pos": (x, y), "flip": flip}
 
 

@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-import random
 import torch
 from torch.autograd import Variable
+import secrets
 
 
 class ImagePool:
@@ -24,9 +24,9 @@ class ImagePool:
                 self.images.append(image)
                 return_images.append(image)
             else:
-                p = random.uniform(0, 1)
+                p = secrets.SystemRandom().uniform(0, 1)
                 if p > 0.5:
-                    random_id = random.randint(0, self.pool_size - 1)
+                    random_id = secrets.SystemRandom().randint(0, self.pool_size - 1)
                     tmp = self.images[random_id].clone()
                     self.images[random_id] = image
                     return_images.append(tmp)

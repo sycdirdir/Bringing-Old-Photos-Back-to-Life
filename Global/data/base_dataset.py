@@ -5,7 +5,7 @@ import torch.utils.data as data
 from PIL import Image
 import torchvision.transforms as transforms
 import numpy as np
-import random
+import secrets
 
 class BaseDataset(data.Dataset):
     def __init__(self):
@@ -37,10 +37,10 @@ def get_params(opt, size):
         pass
 
 
-    x = random.randint(0, np.maximum(0, new_w - opt.fineSize))
-    y = random.randint(0, np.maximum(0, new_h - opt.fineSize))
+    x = secrets.SystemRandom().randint(0, np.maximum(0, new_w - opt.fineSize))
+    y = secrets.SystemRandom().randint(0, np.maximum(0, new_h - opt.fineSize))
     
-    flip = random.random() > 0.5
+    flip = secrets.SystemRandom().random() > 0.5
     return {'crop_pos': (x, y), 'flip': flip}
 
 def get_transform(opt, params, method=Image.BICUBIC, normalize=True):
