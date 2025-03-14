@@ -9,7 +9,7 @@ from subprocess import call
 
 def run_cmd(command):
     try:
-        call(command, shell=True)
+        call(command, shell=False)
     except KeyboardInterrupt:
         print("Process interrupted")
         sys.exit(1)
