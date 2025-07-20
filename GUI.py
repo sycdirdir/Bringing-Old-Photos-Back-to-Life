@@ -7,12 +7,13 @@ import os
 import sys
 import shutil
 from subprocess import call
+from security import safe_command
 
 def modify(image_filename=None, cv2_frame=None):
 
     def run_cmd(command):
         try:
-            call(command, shell=True)
+            safe_command.run(call, command, shell=True)
         except KeyboardInterrupt:
             print("Process interrupted")
             sys.exit(1)

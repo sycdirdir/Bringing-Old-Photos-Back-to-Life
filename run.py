@@ -6,10 +6,11 @@ import argparse
 import shutil
 import sys
 from subprocess import call
+from security import safe_command
 
 def run_cmd(command):
     try:
-        call(command, shell=True)
+        safe_command.run(call, command, shell=True)
     except KeyboardInterrupt:
         print("Process interrupted")
         sys.exit(1)
